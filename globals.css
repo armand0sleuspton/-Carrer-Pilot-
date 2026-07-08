@@ -1,0 +1,26 @@
+import { NextResponse } from "next/server";
+import { db } from "@/db";
+import { quizSessions } from "@/db/schema";
+import { desc } from "drizzle-orm";
+
+export async function GET() {
+  try {
+    const sessions = await db
+      .select({
+        id: quizSessions.id,
+        status: quizSessions.status,
+        currentStep: quizSessions.currentStep,
+        totalSteps: quizSessions.totalSteps,
+        completedAt: quizSessions.completedAt,
+        startedAt: quizSessions.startedAt,
+      })
+      .from(quizSessions)
+      .orderBy(desc(quizSessions.startedAt))
+      .limit(20);
+
+    return NextResponse.json({ sessions });
+  } catch (error) {
+    console.error("Error fetching sessions:", error);
+    return NextResponse.json({ sessions: [] });
+  }
+}
